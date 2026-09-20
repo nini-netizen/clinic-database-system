@@ -1,0 +1,51 @@
+/*資料(有些病患資料是在GUI介面做的) */
+INSERT INTO Patients (name,birthday,gender,email)
+VALUES (N'張三','1980-01-02','M','zhang3@example.com'),
+       (N'李四','1995-01-01','F','li4@example.com');
+
+INSERT INTO Staffs (name,role,phone)
+VALUES (N'張醫師','Doctor','0912-000-001'),
+       (N'李護理師','Nurse','0912-000-002');
+
+INSERT INTO Visits (patient_id,visit_date,diagnosis)
+VALUES (1,'2025-06-10',N'肺炎');
+
+INSERT INTO Prescriptions (visit_id,drug_name,dosage,days)
+VALUES (1,N'Acetaminophen',N'500 mg',3);
+
+INSERT INTO Visits (patient_id, visit_date, diagnosis)
+VALUES (2, '2025-06-01', '感冒'),
+       (2, '2025-06-15', '頭痛');
+
+INSERT INTO Visits (patient_id, visit_date, diagnosis)
+VALUES (3, '2025-06-05', '咳嗽');
+
+INSERT INTO Visits (patient_id, visit_date, diagnosis)
+VALUES (1, GETDATE(), '感冒');
+INSERT INTO Prescriptions (visit_id, drug_name, dosage, days)
+VALUES (SCOPE_IDENTITY(), '藥物A', '500 mg', 7);
+
+INSERT INTO Visits (patient_id, visit_date, diagnosis)
+VALUES (2, GETDATE(), '頭痛');
+INSERT INTO Prescriptions (visit_id, drug_name, dosage, days)
+VALUES (SCOPE_IDENTITY(), '藥物B', '250 mg', 5);
+
+-- 為病患 3 新增就診紀錄和處方
+INSERT INTO Visits (patient_id, visit_date, diagnosis)
+VALUES (3, GETDATE(), '咳嗽');
+INSERT INTO Prescriptions (visit_id, drug_name, dosage, days)
+VALUES (SCOPE_IDENTITY(), '藥物C', '10 mg', 3);
+
+
+INSERT INTO Tasks (description, created_by)
+VALUES 
+    ('處理病患 1 的就診資料', 1), 
+    ('病患 2 預約檢查', 2),
+    ('病患 3 跟進回診', 1);
+
+
+INSERT INTO Task_Assignments (task_id, staff_id, status)
+VALUES 
+    (1, 1, 'Pending'),     
+    (2, 2, 'In-Progress'), 
+    (3, 1, 'Pending');     

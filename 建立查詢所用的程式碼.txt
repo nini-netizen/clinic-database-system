@@ -1,0 +1,62 @@
+USE ClinicDB3;
+GO
+
+CREATE OR ALTER PROC sp_PatientInfo @pid INT
+AS
+SELECT * 
+FROM Patients 
+WHERE patient_id = @pid;
+GO
+
+CREATE OR ALTER PROC sp_BornAfterYear @year INT
+AS
+SELECT patient_id, name, birthday
+FROM   Patients
+WHERE  birthday >= DATEFROMPARTS(@year,1,1);
+GO
+
+CREATE OR ALTER PROC sp_StaffOpenTasks @sid INT
+AS
+SELECT  t.task_id, t.description, ta.status, t.created_at
+FROM    Task_Assignments ta
+JOIN    Tasks t ON t.task_id = ta.task_id
+WHERE   ta.staff_id = @sid
+  AND   ta.status  <> 'Done';
+GO
+
+CREATE OR ALTER PROC sp_PatientVisitDetail @pid INT
+AS
+SELECT  v.visit_id, v.visit_date, v.diagnosis,
+        p.drug_name, p.dosage, p.days
+FROM    Visits v
+LEFT JOIN Prescriptions p ON p.visit_id = v.visit_id
+WHERE   v.patient_id = @pid
+ORDER BY v.visit_date DESC;
+GO
+
+CREATE OR ALTER PROC sp_TasksByCreator @creator INT
+AS
+SELECT task_id, description, created_at
+FROM   Tasks
+WHERE  created_by = @creator;
+GO
+
+CREATE OR ALTER PROC sp_VisitPrescription @vid INT
+AS
+SELECT prescription_id, drug_name, dosage, days
+FROM   Prescriptions
+WHERE  visit_id = @vid;
+GO
+
+CREATE OR ALTER VIEW v_SurnameWang AS
+SELECT patient_id, name, phone
+FROM   Patients
+WHERE  name LIKE N'王%';
+GO
+
+CREATE OR ALTER VIEW v_BornAfter2000 AS
+SELECT patient_id, name, birthday, gender
+FROM   Patients
+WHERE  birthday >= '2000-01-01';
+GO
+

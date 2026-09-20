@@ -1,0 +1,71 @@
+USE master;
+GO
+IF DB_ID('ClinicDB3') IS NOT NULL
+BEGIN
+    ALTER DATABASE ClinicDB3 SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ClinicDB3;
+END;
+GO
+CREATE DATABASE ClinicDB3;
+GO
+USE ClinicDB3;
+GO
+
+/* 建表  */
+CREATE TABLE Patients (
+    patient_id INT IDENTITY(1,1) PRIMARY KEY,
+    name       NVARCHAR(100) NOT NULL,
+    birthday   DATE NOT NULL,
+    gender     CHAR(1) CHECK (gender IN ('M','F')),
+    phone      NVARCHAR(20),
+    email      NVARCHAR(255),        
+    address    NVARCHAR(255)
+);
+/* 這邊是因為如果填了email要是唯一，但病患可以不一定要填 */
+CREATE UNIQUE INDEX UQ_Patients_Email
+    ON Patients(email)
+    WHERE email IS NOT NULL;
+
+CREATE TABLE Staffs (
+    staff_id INT IDENTITY(1,1) PRIMARY KEY,
+    name     NVARCHAR(100) NOT NULL,
+    role     NVARCHAR(50)  NOT NULL,
+    phone    NVARCHAR(20)
+);
+
+CREATE TABLE Visits (
+    visit_id   INT IDENTITY(1,1) PRIMARY KEY,
+    patient_id INT NOT NULL
+        REFERENCES Patients(patient_id) ON DELETE CASCADE,
+    visit_date DATE NOT NULL,
+    diagnosis  NVARCHAR(255)
+);
+CREATE UNIQUE INDEX UQ_Visits_PatientDate
+    ON Visits(patient_id, visit_date);
+
+CREATE TABLE Prescriptions (
+    prescription_id INT IDENTITY(1,1) PRIMARY KEY,
+    visit_id  INT NOT NULL
+        REFERENCES Visits(visit_id) ON DELETE CASCADE,
+    drug_name NVARCHAR(255) NOT NULL,
+    dosage    NVARCHAR(100),
+    days      INT CHECK (days > 0)
+);
+
+CREATE TABLE Tasks (
+    task_id INT IDENTITY(1,1) PRIMARY KEY,
+    description NVARCHAR(255) NOT NULL,
+    created_by  INT REFERENCES Staffs(staff_id),
+    created_at  DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Task_Assignments (
+    task_id  INT NOT NULL REFERENCES Tasks(task_id) ON DELETE CASCADE,
+    staff_id INT NOT NULL REFERENCES Staffs(staff_id),
+    status NVARCHAR(20) CHECK (status IN ('Pending','In-Progress','Done')),
+    PRIMARY KEY (task_id, staff_id)
+);
+
+
+
+GO
